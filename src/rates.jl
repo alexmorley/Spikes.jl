@@ -1,5 +1,3 @@
-
-
 export rate_session, ses_mean, ses_std, rate_event, rate_window, rate_window_pop, zscore, zscore_pop, psth_per_con,plot_raster, plot_psth, plot_psth_raster, plot_raster_psth, plot_pop_psth, plot_pop_psth_cb, psth_pop
 
 
@@ -68,7 +66,7 @@ end
 Shimazaki H. and Shinomoto S., Kernel Bandwidth Optimization in Spike Rate Estimation
 =#
 function rate_event_kdopt(spikes::SpikeTrain,inds::Array{Int64,1},time::Array{Float64,1})  
-    spikes_temp=sort(vcat([spikes.ts[spikes.trials[i].inds]-spikes.center[i,1] for i in inds]...))
+    spikes_temp=sort(vcat([spikes.ts[spikes.trials[i].inds]-spikes.trials[i].ts for i in inds]...))
 
     isi=diff(spikes_temp)
     dt=minimum(isi)
@@ -191,11 +189,11 @@ function rate_trials(myrate::rate,inds::Array{Int64,1},time::FloatRange{Float64}
 end
 
 function spikehist(myrate::rate,ind::Int64,ts::FloatRange{Float64},n::Int64)
-    hist(myrate.spikes[n].ts[myrate.spikes[n].trials[ind].inds]-myrate.spikes[n].center[ind,1],ts[1]:myrate.binsize:ts[end])[2]
+    hist(myrate.spikes[n].ts[myrate.spikes[n].trials[ind].inds]-myrate.spikes[n].trials[ind].time,ts[1]:myrate.binsize:ts[end])[2]
 end
 
 function spikehist(myrate::rate,ind::Int64,ts::Array{Float64,1},n::Int64)
-    hist(myrate.spikes[n].ts[myrate.spikes[n].trials[ind].inds]-myrate.spikes[n].center[ind,1],ts)[2]
+    hist(myrate.spikes[n].ts[myrate.spikes[n].trials[ind].inds]-myrate.spikes[n].trials[ind].time,ts)[2]
 end
 
 function collect_ts(myrate::rate,inds::Array{Int64,1},ts::FloatRange{Float64},n::Int64,output=zeros(Float64,length(ts)-1))
@@ -208,7 +206,7 @@ function collect_ts(myrate::rate,inds::Array{Int64,1},ts::Array{Float64,1},n::In
     end
    @inbounds for i in inds
         count=1
-        mycent=myrate.spikes[n].center[i,1]
+        mycent=myrate.spikes[n].trials[i].time
         for j=1:length(myrate.spikes[n].trials[i].inds)
             myt=myrate.spikes[n].ts[myrate.spikes[n].trials[i].inds[j]]-mycent
             if myt>ts[count]
@@ -291,7 +289,7 @@ function total_spikes(myrate::rate,inds::Array{Int64,1},ts::Array{Float64,1},n::
 
     mysize=0
     @inbounds for i in inds
-        mycent=myrate.spikes[n].center[i,1]
+        mycent=myrate.spikes[n].trials[i].time
         for j in myrate.spikes[n].trials[i].inds
             if myrate.spikes[n].ts[j]-mycent > ts[end]
                 break
@@ -355,7 +353,7 @@ function plot_raster(myrate::rate,inds::Array{Int64,1},ts::Array{Float64,1},n::I
     myspikes=1
     xy=[zeros(Float64,2,2) for i=1:total_spikes(myrate,inds,ts,n)]
     @inbounds for i in inds
-        mycenter=myrate.spikes[n].center[i,1] 
+        mycenter=myrate.spikes[n].trials[i].time 
         for j in myrate.spikes[n].trials[i].inds
             if myrate.spikes[n].ts[j]-mycenter > ts[end]
                 break
@@ -401,7 +399,7 @@ function plot_psth(myrate::rate,ts::Array{Float64,1},inds::Array{Int64,1},n::Int
 
     psth=rate_event(myrate,inds,ts,n)
 
-    ylimit=round(Int64,maximum(psth)/10)*10
+    ylimit=ceil(Int64,maximum(psth))
     ax[:set_yticks]([0, ylimit])
     ax[:set_yticklabels]([0,ylimit],size=6)
     ax[:set_ylabel]("Rate (spikes/s)", size=6)
@@ -469,5 +467,4 @@ function plot_pop_psth_cb(myrate::rate,ts::FloatRange{Float64},inds::Array{Int64
     cbar_ax = fig[:add_axes]([.85,.15,.02,.7])
     fig[:colorbar](myplot,cax=cbar_ax,label="Z score",ticks=[lims[1],lims[2]])
     (fig,ax)
-end
-    
+end 
