@@ -134,7 +134,7 @@ end
 function addevent!(spikes::Array{SpikeTrain,1},times::Vector{Float64},win::Float64, eventIDs::Vector{Int64})
     
     for i=1:length(spikes) # for each SpikeTrain
-        first=searchsortedfirst(spikes[i].ts,times[1])-1 # first spike for first time
+        first=searchsortedfirst(spikes[i].ts,times[1]-win)-1 # first spike for first time
         mysize=length(spikes[i].ts) # number of spikes
         if first<mysize
             for j=1:length(times)
