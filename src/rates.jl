@@ -38,6 +38,15 @@ function rate_event(myrate::rate_bin,inds::Array{Int64,1},ts::FloatRange{Float64
     collect_ts(myrate,inds,collect(ts),n,output)
 end
 
+# Get population rates around event
+function rate_event(myrate::rate_bin,inds::Array{Int64,1},ts::Array{Float64,1},n::Array{Int64,1})
+    sum(map((x)->rate_event(myrate,inds,ts,x), n))
+end
+
+function rate_event(myrate::rate_bin,inds::Array{Int64,1},ts::FloatRange{Float64},n::Array{Int64,1})
+    sum(map((x)->rate_event(myrate,inds,ts,x), n))
+end
+
 #=
 TODO
 Shimazaki H. and Shinomoto S., A method for selecting the bin size of a time histogram
@@ -382,11 +391,11 @@ end
 PSTH
 =#
 
-plot_psth(myrate::rate,ts::FloatRange{Float64},inds::Array{Int64,1},n::Int64)=plot_psth(myrate,collect(ts),inds,n)
+plot_psth(myrate::rate,ts::FloatRange{Float64},inds::Array{Int64,1},n::Union{Int64, Array{Int64,1}})=plot_psth(myrate,collect(ts),inds,n)
 
-plot_psth(myrate::rate,ts::FloatRange{Float64},inds::Array{Int64,1},n::Int64,ax)=plot_psth(myrate,collect(ts),inds,n,ax)
+plot_psth(myrate::rate,ts::FloatRange{Float64},inds::Array{Int64,1},n::Union{Int64, Array{Int64,1}},ax)=plot_psth(myrate,collect(ts),inds,n,ax)
 
-function plot_psth(myrate::rate,ts::Array{Float64,1},inds::Array{Int64,1},n::Int64)
+function plot_psth(myrate::rate,ts::Array{Float64,1},inds::Array{Int64,1},n::Union{Int64, Array{Int64,1}})
 
     (fig,ax)=subplots(1,1)
 
@@ -395,7 +404,7 @@ function plot_psth(myrate::rate,ts::Array{Float64,1},inds::Array{Int64,1},n::Int
     (fig,ax)
 end
 
-function plot_psth(myrate::rate,ts::Array{Float64,1},inds::Array{Int64,1},n::Int64,ax)
+function plot_psth(myrate::rate,ts::Array{Float64,1},inds::Array{Int64,1},n::Union{Int64, Array{Int64,1}},ax)
 
     psth=rate_event(myrate,inds,ts,n)
 
