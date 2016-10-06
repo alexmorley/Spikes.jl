@@ -452,8 +452,8 @@ function plot_pop_psth(myrate::rate,ts::FloatRange{Float64},inds::Array{Int64,1}
 
     popth=zscore_pop(myrate,inds,ts)
 
-    ax[:set_yticks]([])
-    ax[:set_yticklabels]([])
+    ax[:set_yticks](0.5:length(myrate.spikes)-0.5)
+    ax[:set_yticklabels](1:length(myrate.spikes), size = 4)
     ax[:set_ylabel]("Neuron", size=8)
 
     ax[:set_xlabel]("Time (s)", size=8)

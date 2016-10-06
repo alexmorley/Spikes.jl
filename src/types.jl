@@ -247,7 +247,7 @@ type QE <: bias
 end
 
 # Behavioral Types
-
+# Position/Velocity x & y
 type Kinematic
     px::Array{Float64,1}
     py::Array{Float64,1}
